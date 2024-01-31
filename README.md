@@ -1,5 +1,6 @@
 # ANN-from-Scratch-Learner
-Here are the ANN basics codes and notes.
+The materials here were obtained from: https://medium.com/@waleedmousa975/building-a-neural-network-from-scratch-using-numpy-and-math-libraries-a-step-by-step-tutorial-in-608090c20466#id_token=eyJhbGciOiJSUzI1NiIsImtpZCI6Ijg1ZTU1MTA3NDY2YjdlMjk4MzYxOTljNThjNzU4MWY1YjkyM2JlNDQiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiIyMTYyOTYwMzU4MzQtazFrNnFlMDYwczJ0cDJhMmphbTRsamRjbXMwMHN0dGcuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiIyMTYyOTYwMzU4MzQtazFrNnFlMDYwczJ0cDJhMmphbTRsamRjbXMwMHN0dGcuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMDU4MTY1NDA2MTQ2NDQ1MjU0NjEiLCJoZCI6Im11bmkuYWMudWciLCJlbWFpbCI6IjIzMDEyMDA3NTJAbXVuaS5hYy51ZyIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJuYmYiOjE3MDY3MzY3MzksIm5hbWUiOiJDZWFzYXIgT2J1ZHJhIiwicGljdHVyZSI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hL0FDZzhvY0xUTmxXVm5wa1MyN0FBSkdva1UybTBsOEpqdjNQUEM4bXJJRkhtS2c3c1FnPXM5Ni1jIiwiZ2l2ZW5fbmFtZSI6IiBDZWFzYXIiLCJmYW1pbHlfbmFtZSI6Ik9idWRyYSIsImxvY2FsZSI6ImVuLUdCIiwiaWF0IjoxNzA2NzM3MDM5LCJleHAiOjE3MDY3NDA2MzksImp0aSI6IjFkMTk5MWQwZjBhOGQyMWZmNjg0ZGU5ODVlMTE5NmEyYjgxNzZlYzgifQ.wraI5SisgmgLGtjPm167rIFMHShoIDgy_e_usx2c__wb5DWAVuR5S_RNyOTl8j_PGnCV1R6pjWSRFes95iGNyWUf7sXcHyXLbBE9-Pq0_6gfu-xQNxa_cSVALmSP-F9-RVAqebh8GftcrGF2S0kadDAr3myJKT_UmpVLSJjaKwv7QPr1tT4tjuJjiteWI5GNiWCVtAnJ6TNkoP261QjJTr08O324fOfBwsFTn5kGDGe2zf1zr2X7-J_aMlMdtov7DpVEMH2yICR9PNTlkXARtyFLUvl2qmMP1BXUrqHQg16Ve3c09dYezkxyOB138GIYQG0d3i5C06x-6TFpUSs-ag
+
 Neural networks are powerful ML models used in image classification, speech recognition, and natural language processing etc.
 
 On can use the many high-level libraries available to build and train neural networks easily, but 2it’s important to have a fundamental understanding of the underlying concepts and mathematics behind them.
@@ -21,10 +22,194 @@ The details are as below:
 
 Step 1: Load and prepare the dataset
 - Load the dataset and prepare it for training. E.g a simple toy dataset with two features and two classes created using the below code:
-- import numpy as np
+import numpy as np
 
 np.random.seed(0)
 
 # create a toy dataset
 X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
 y = np.array([[0], [1], [1], [0]])
+X is the input data with four samples, each having two features, and y is the output data with four labels.
+
+Step 2: Define the neural network architecture
+So, we create a simple feedforward neural network with one hidden layer containing three neurons.
+
+The input layer will have two neurons, and the output layer will have one neuron. The architecture can be represented as follows:
+  Input Layer (2 neurons)
+            ||
+            \/
+     Hidden Layer (3 neurons)
+            ||
+            \/
+     Output Layer (1 neuron)
+
+Step 3: Initialize the weights and biases
+
+We initialize the weights and biases of each layer randomly using Numpy’s random module in order to train the neural network.
+
+# initialize weights and biases
+def initialize_parameters(input_size, hidden_size, output_size):
+    np.random.seed(0)
+    W1 = np.random.randn(hidden_size, input_size) * 0.01
+    b1 = np.zeros((hidden_size, 1))
+    W2 = np.random.randn(output_size, hidden_size) * 0.01
+    b2 = np.zeros((output_size, 1))
+    parameters = {"W1": W1, "b1": b1, "W2": W2, "b2": b2}
+    return parameters
+
+parameters = initialize_parameters(2, 3, 1)
+
+W1 and W2 are the weight matrices of the hidden and output layers, respectively. b1 and b2 are the bias vectors of the hidden and output layers, respectively. The input_size, hidden_size, and output_size parameters are the number of neurons in the input, hidden, and output layers, respectively.
+
+Step 4: Define the activation function(s)
+The activation function is used to introduce non-linearity into the neural network. we can use the sigmoid activation function,ReLU etc, for this case, we use Sigmoid AF.
+
+# sigmoid activation function
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+Step 5: Implement the forward propagation algorithm
+The forward propagation algorithm is used to compute the output of the neural network given an input.
+It involves computing the weighted sum of the inputs and the biases, passing the result through the activation function, and repeating this process for each layer until the output is obtained.
+
+# forward propagation
+def forward_propagation(X, parameters):
+    # retrieve the parameters
+    W1, b1, W2, b2 = parameters
+    
+    # compute the activation of the hidden layer
+    Z1 = np.dot(W1, X.T) + b1
+    A1 = sigmoid(Z1)
+    
+    # compute the activation of the output layer
+    Z2 = np.dot(W2, A1) + b2
+    A2 = sigmoid(Z2)
+    
+    cache = {"Z1": Z1, "A1": A1, "Z2": Z2, "A2": A2}
+    
+    return A2, cache
+
+A2, cache = forward_propagation(X, parameters)
+
+X is the input data, and parameters are the weights and biases of the neural network. The forward_propagation function returns the output of the neural network (A2) and a cache containing the intermediate values (Z1, A1, Z2, A2) that will be needed for the backward propagation algorithm.
+
+Step 6: Define the loss function
+The loss function is used to measure the error of the neural network’s predictions. For this case, we use the binary cross-entropy loss function.
+
+# binary cross-entropy loss function
+def binary_cross_entropy_loss(A2, y):
+    m = y.shape[0]
+    loss = -(1/m) * np.sum(y*np.log(A2) + (1-y)*np.log(1-A2))
+    return loss
+
+Here, A2 is the output of the neural network, and y is the true label.
+
+Step 7: Implement the backward propagation algorithm
+The backward propagation algorithm is used to compute the gradients of the loss function with respect to the weights and biases of the neural network. .
+It involves computing the error of the output layer, propagating the error backward to the hidden layer, and computing the gradients using the chain rule.
+# backward propagation
+def backward_propagation(parameters, cache, X, y):
+    m = y.shape[0]
+    
+    # retrieve the intermediate values
+    Z1 = cache["Z1"]
+    A1 = cache["A1"]
+    Z2 = cache["Z2"]
+    A2 = cache["A2"]
+    
+    # compute the derivative of the loss with respect to A2
+    dA2 = - (y/A2) + ((1-y)/(1-A2))
+    
+    # compute the derivative of the activation function of the output layer
+    dZ2 = dA2 * (A2 * (1-A2))
+    
+    # compute the derivative of the weights and biases of the output layer
+    dW2 = (1/m) * np.dot(dZ2, A1.T)
+    db2 = (1/m) * np.sum(dZ2, axis=1, keepdims=True)
+    
+    # compute the derivative of the activation function of the hidden layer
+    dA1 = np.dot(parameters["W2"].T, dZ2)
+    dZ1 = dA1 * (A1 * (1-A1))
+    
+    # compute the derivative of the weights and biases of the hidden layer
+    dW1 = (1/m) * np.dot(dZ1, X)
+    db1 = (1/m) * np.sum(dZ1, axis=1, keepdims=True)
+    gradients = {"dW1": dW1, "db1": db1, "dW2": dW2, "db2": db2}
+
+    return gradients
+
+    Here, `parameters` are the weights and biases of the neural network, `cache` contains the intermediate values computed during the forward propagation, `X` is the input data, and `y` is the true label.
+The `backward_propagation` function returns the gradients of the loss function with respect to the weights and biases of the neural network.
+
+Step 8: Implement the update parameters function
+The update parameters function is used to update the weights and biases of the neural network using the gradients computed during the backward propagation.
+# update parameters
+def update_parameters(parameters, gradients, learning_rate):
+    # retrieve the gradients
+    dW1 = gradients["dW1"]
+    db1 = gradients["db1"]
+    dW2 = gradients["dW2"]
+    db2 = gradients["db2"]
+    
+    # retrieve the weights and biases
+    W1 = parameters["W1"]
+    b1 = parameters["b1"]
+    W2 = parameters["W2"]
+    b2 = parameters["b2"]
+    
+    # update the weights and biases
+    W1 = W1 - learning_rate*dW1
+    b1 = b1 - learning_rate*db1
+    W2 = W2 - learning_rate*dW2
+    b2 = b2 - learning_rate*db2
+    
+    parameters = {"W1": W1, "b1": b1, "W2": W2, "b2": b2}
+    
+    return parameters
+    
+Here, parameters are the weights and biases of the neural network, gradients are the gradients of the loss function with respect to the weights and biases of the neural network, and learning_rate is the learning rate used to update the weights and biases. The update_parameters function returns the updated weights and biases.
+
+Step 9: Train the neural network
+Now that we have implemented all the necessary functions, we can train the neural network using the training data.
+The training process involves repeatedly performing forward propagation, backward propagation, and updating the parameters until the loss function is minimized.
+
+# train the neural network
+def train(X, y, hidden_layer_size, num_iterations, learning_rate):
+    # initialize the weights and biases
+    parameters = initialize_parameters(X.shape[1], hidden_layer_size, 1)
+    
+    for i in range(num_iterations):
+        # forward propagation
+        A2, cache = forward_propagation(X, parameters)
+        
+        # compute the loss
+        loss = binary_cross_entropy_loss(A2, y)
+        
+        # backward propagation
+        gradients = backward_propagation(parameters, cache, X, y)
+        
+        # update the parameters
+        parameters = update_parameters(parameters, gradients, learning_rate)
+        
+        if i % 1000 == 0:
+            print(f"iteration {i}: loss = {loss}")
+    
+    return parameters
+
+parameters = train(X, y, hidden_layer_size=4, num_iterations=10000, learning_rate=0.1)
+
+Here, X is the input data, y is the true label, hidden_layer_size is the number of neurons in the hidden layer, num_iterations is the number of iterations to perform, and learning_rate is the learning rate used to update the weights and biases. The train function returns the trained weights and biases.
+
+Step 10: Make predictions
+Finally, we can use the trained neural network to make predictions on new data.
+The predict function performs forward propagation on the input data using the trained weights and biases and returns the predicted labels.
+
+# predict the labels for new data
+def predict(X, parameters):
+    A2, _ = forward_propagation(X, parameters)
+    predictions = (A2 > 0.5).astype(int)
+    return predictions
+
+predictions = predict(X_test, parameters)
+
+Here, X is the input data, parameters are the trained weights and biases, and X_test is the new data for which we want to make predictions. The predict function returns the predicted labels.
